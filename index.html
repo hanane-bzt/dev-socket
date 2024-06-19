@@ -22,25 +22,38 @@
       </div>
     </div>
   </nav>
-
-  <div class="container mt-4">
-    <h1>Bienvenue sur notre application de chat en temps réel</h1>
-    <p>Veuillez entrer le nom d'un canal pour rejoindre.</p>
-    <form id="channelForm" action="/channel/randomChannel" method="get">
-      <div class="input-group mb-3">
-        <input type="text" id="channelInput" class="form-control" placeholder="Nom du canal" aria-label="Nom du canal" aria-describedby="button-addon2">
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Rejoindre</button>
+  <div class="modal" tabindex="-1" id="pseudoModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Saisir un pseudo</h5>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="pseudoInput" class="form-control" placeholder="Entrez votre pseudo">
+          <div id="pseudoError" class="text-danger mt-2"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="savePseudoButton">Sauvegarder</button>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 
   <script>
-    document.getElementById('channelForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const channelName = document.getElementById('channelInput').value;
-      window.location.href = `/channel/${channelName}`;
+    const socket = io();
+    document.getElementById('savePseudoButton').addEventListener('click',()=> {
+      const pseudo = document.getElementById('pseudoInput').value;
+      socket.emit('setPseudo', pseudo,(response) =>{
+        if (response.success) {
+          document.getElementById('pseudoModal').style.display ='none';
+        } else {
+          document.getElementById('pseudoError').innerText=response.message;
+        }
+      });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      $('#pseudoModal').modal({ backdrop:'static',keyboard:false });
+      $('#pseudoModal').modal('show');
     });
   </script>
 </body>

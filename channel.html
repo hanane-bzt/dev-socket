@@ -23,17 +23,31 @@
     </div>
   </nav>
 
-  <!-- Conteneur pour les messages -->
   <div class="container mt-4">
     <ul id="messages" class="list-group"></ul>
   </div>
-
-  <!-- Formulaire pour envoyer des messages -->
   <div class="container mt-4">
     <form id="messageForm" class="d-flex">
       <input id="messageInput" class="form-control me-2" type="text" placeholder="Message" aria-label="Message">
       <button class="btn btn-outline-success" type="submit">Envoyer</button>
     </form>
+  </div>
+
+  <div class="modal" tabindex="-1" id="pseudoModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Choisir un pseudo</h5>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="pseudoInput" class="form-control" placeholder="Entrez votre pseudo">
+          <div id="pseudoError" class="text-danger mt-2"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="savePseudoButton">Sauvegarder</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -46,7 +60,20 @@
 
     socket.on('connect', () => {
       console.log('Connecté au serveur WebSocket');
-      socket.emit('joinChannel', channelName);
+      $('#pseudoModal').modal({ backdrop: 'static', keyboard: false });
+      $('#pseudoModal').modal('show');
+    });
+
+    document.getElementById('savePseudoButton').addEventListener('click', () => {
+      const pseudo = document.getElementById('pseudoInput').value;
+      socket.emit('setPseudo', pseudo, (response) => {
+        if (response.success) {
+          $('#pseudoModal').modal('hide');
+          socket.emit('joinChannel', channelName);
+        } else {
+          document.getElementById('pseudoError').innerText = response.message;
+        }
+      });
     });
 
     socket.on('disconnect', () => {
@@ -54,26 +81,28 @@
       socket.emit('leaveChannel', channelName);
     });
 
-    //écouter les messages du serveur
+    // écouter les messages du serveur
     socket.on('message', (message) => {
-      const li= document.createElement('li');
+      const li = document.createElement('li');
       li.classList.add('list-group-item');
-      li.textContent =message;
+      li.textContent = message;
       document.getElementById('messages').appendChild(li);
     });
-    //écouter les notifications du serveur
+
+    // écouter les notifications du serveur
     socket.on('notification', (notification) => {
-      const li =document.createElement('li');
+      const li = document.createElement('li');
       li.classList.add('list-group-item', 'list-group-item-info');
-      li.textContent= notification;
+      li.textContent = notification;
       document.getElementById('messages').appendChild(li);
     });
+
     // envoyer un message au serveur
     document.getElementById('messageForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const messageInput =document.getElementById('messageInput');
-      const message =messageInput.value;
-      socket.emit('message',{ channelName,message });
+      const messageInput = document.getElementById('messageInput');
+      const message = messageInput.value;
+      socket.emit('message', { channelName, message });
       messageInput.value = '';
     });
   </script>
