@@ -1,0 +1,28 @@
+{
+  "name": "dev-socket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start" : "nodemon index.js --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hanane-bzt/dev-socket.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hanane-bzt/dev-socket/issues"
+  },
+  "homepage": "https://github.com/hanane-bzt/dev-socket#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
