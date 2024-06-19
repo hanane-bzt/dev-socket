@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Channel</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Channel</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Conteneur pour les messages -->
+  <div class="container mt-4">
+    <ul id="messages" class="list-group"></ul>
+  </div>
+
+  <!-- Formulaire pour envoyer des messages -->
+  <div class="container mt-4">
+    <form id="messageForm" class="d-flex">
+      <input id="messageInput" class="form-control me-2" type="text" placeholder="Message" aria-label="Message">
+      <button class="btn btn-outline-success" type="submit">Envoyer</button>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const channelName = window.location.pathname.split('/').pop();
+
+    socket.on('connect', () => {
+      console.log('Connecté au serveur WebSocket');
+      socket.emit('joinChannel', channelName);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Déconnecté du serveur WebSocket');
+      socket.emit('leaveChannel', channelName);
+    });
+
+    //écouter les messages du serveur
+    socket.on('message', (message) => {
+      const li= document.createElement('li');
+      li.classList.add('list-group-item');
+      li.textContent =message;
+      document.getElementById('messages').appendChild(li);
+    });
+    //écouter les notifications du serveur
+    socket.on('notification', (notification) => {
+      const li =document.createElement('li');
+      li.classList.add('list-group-item', 'list-group-item-info');
+      li.textContent= notification;
+      document.getElementById('messages').appendChild(li);
+    });
+    // envoyer un message au serveur
+    document.getElementById('messageForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const messageInput =document.getElementById('messageInput');
+      const message =messageInput.value;
+      socket.emit('message',{ channelName,message });
+      messageInput.value = '';
+    });
+  </script>
+</body>
+</html>
