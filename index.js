@@ -15,11 +15,14 @@ app.get('/',(req,res)=>{
 //pour initialiser socket.io
 io.on('connection', (socket)=> {
     console.log('Nv utilisateur connécté');
+    io.emit('notification', 'nv utilisateur s\'est connecté');
     socket.on('message',(data)=>{
         console.log('msg recu: ',data);
+        io.emit('message', data);
     });
     socket.on('disconnect', () => {
         console.log('utilisateur déconnecté');
+        io.emit('notification', 'utilisateur s\'est déconnecté');
     })
 });
 

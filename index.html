@@ -40,6 +40,15 @@
       </div>
     </div>
   </nav>
+  <div class="container mt-4">
+    <ul id="messages" class="list-group"></ul>
+  </div>
+  <div class="container mt-4">
+    <form id="messageForm" class="d-flex">
+      <input id="messageInput" class="form-control me-2" type="text" placeholder="Message" aria-label="Message">
+      <button class="btn btn-outline-success" type="submit">Envoyer</button>
+    </form>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -49,10 +58,33 @@
       console.log('Connecté au serveur WebSocket');
     });
 
-    socket.emit('message', 'ceci est un message de test');
-
     socket.on('disconnect', () => {
       console.log('Déconnecté du serveur WebSocket');
+    });
+
+    // pour écouter messages du serveur
+    socket.on('message', (message) => {
+      const li = document.createElement('li');
+      li.classList.add('list-group-item');
+      li.textContent = message;
+      document.getElementById('messages').appendChild(li);
+    });
+
+    // pour écouter les notifications du serveur
+    socket.on('notification',(notification) => {
+      const li =document.createElement('li');
+      li.classList.add('list-group-item','list-group-item-info');
+      li.textContent =notification;
+      document.getElementById('messages').appendChild(li);
+    });
+
+    // pour énvoyer un message au serveur
+    document.getElementById('messageForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const messageInput =document.getElementById('messageInput');
+      const message =messageInput.value;
+      socket.emit('message',message);
+      messageInput.value ='';
     });
   </script>
 </body>
